@@ -342,10 +342,10 @@ namespace WebNotifier
         {
             string url = "";
             string cmd = "_s-xclick";
-            string business = "test@msn.com";  // your paypal email
-            string description = "Donation";            // '%20' represents a space. remember HTML!
-            string country = "DE";                  // AU, US, etc.
-            string currency = "EUR";                 // AUD, USD, etc.
+           // string business = "test@msn.com";  // your paypal email
+            //string description = "Donation";            // '%20' represents a space. remember HTML!
+            //string country = "DE";                  // AU, US, etc.
+           // string currency = "EUR";                 // AUD, USD, etc.
             string buttonID = "STWQN7AUYV6LA";
             url += "https://www.paypal.com/cgi-bin/webscr" +
                 "?cmd=" + cmd +

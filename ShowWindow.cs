@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebNotifier
 {
-    static public class SafeNativeMethods 
+     public class SafeNativeMethods 
     {
         [DllImport("user32.dll", SetLastError = true)]
         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);

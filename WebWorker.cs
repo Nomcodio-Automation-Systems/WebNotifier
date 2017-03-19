@@ -9,16 +9,16 @@ using System.Diagnostics;
 using SHDocVw;
 using System.Windows.Forms;
 using System.Collections.Specialized;
-//using mshtml;
+
 namespace WebNotifier
 {
     class WebWorker : IDisposable
     {
         Form1 view = null;
-        string[] pages = new string[10];
+        List<string> webpages_content_buffer = new List<string>();
         Thread thread_pages = null;
 
-        private Dictionary<string, LinkedList<DiffItem>> dictionary =
+        private Dictionary<string, LinkedList<DiffItem>> webpages_diff_buffer =
         new Dictionary<string, LinkedList<DiffItem>>();
 
         private volatile bool _shouldStop;
@@ -27,7 +27,7 @@ namespace WebNotifier
         private double waittime = 10;
         private string last_adresse = "";
         private bool debug = true;
-
+        private int waitforcomplete = 10; // sec
 
         public WebWorker(Form1 other)
         {
@@ -56,17 +56,17 @@ namespace WebNotifier
         }
         public Dictionary<string, LinkedList<DiffItem>> DIC
         {
-            get => dictionary;
-            set => dictionary = value;
+            get => webpages_diff_buffer;
+            set => webpages_diff_buffer = value;
         }
-        private string[] Differ(string source1, string source2)
+        private string[] Differ2Strings(string source1, string source2)
         {
 
 
             List<string> diff;
             IEnumerable<string> set1 = source1.Split(' ').Distinct();
             IEnumerable<string> set2 = source2.Split(' ').Distinct();
-
+         
             if (set2.Count() > set1.Count())
             {
                 diff = set2.Except(set1).ToList();
@@ -77,13 +77,13 @@ namespace WebNotifier
             }
             return diff.ToArray();
         }
-        private void NotEqual(string address, string new_webpage, string title, int index)
+        private void NotEqual(string address, string new_webpage_content, string title, int index)
         {
             LinkedList<DiffItem> last = null;
-
+            StringAddon add = new StringAddon();
             try
             {
-                last = dictionary[address];
+                last = webpages_diff_buffer[address];
             }
             catch
             {
@@ -93,7 +93,7 @@ namespace WebNotifier
             {
                 try
                 {
-                    dictionary[address] = Analyse(pages[index], new_webpage);
+                    webpages_diff_buffer[address] = Analyse(webpages_content_buffer[index], new_webpage_content);
                     return;
                 }
                 catch
@@ -102,22 +102,22 @@ namespace WebNotifier
                 }
             }
 
-            LinkedList<DiffItem> now = Analyse(pages[index], new_webpage);
-            bool result = StringAddon.Compare(last, now);
+            LinkedList<DiffItem> now = Analyse(webpages_content_buffer[index], new_webpage_content);
+            bool result = add.Compare2DiffItemLists(last, now);
             if (!last.First.Value.NoDiff && now.ToArray<DiffItem>()[0].Start == 0 && now.ToArray<DiffItem>()[1].Start == 0)
             {
                 if (result == true)
                 {
                     if (now.ToArray<DiffItem>()[0].Start == 0 && now.ToArray<DiffItem>()[1].Start == 0)
                     {
-                        dictionary[address] = last;
+                        webpages_diff_buffer[address] = last;
                     }
                     else
                     {
 
-                        dictionary[address] = now;
+                        webpages_diff_buffer[address] = now;
                     }
-                    pages[index] = new_webpage;
+                    webpages_content_buffer[index] = new_webpage_content;
                     result = false;
                 }
             }
@@ -129,7 +129,7 @@ namespace WebNotifier
                 {
                     LastAddresse = address;
                     WebNotifier.Default.webpageList.Insert(index, address);
-                    WebNotifier.Default.contentList.Insert(index, new_webpage);
+                    WebNotifier.Default.contentList.Insert(index, new_webpage_content);
                     view.SetText(title, address);
                     //String alpha = null;
                     //while ( alpha == null )
@@ -145,11 +145,12 @@ namespace WebNotifier
                     //now = StringAddon.Analyse(alpha, beta);
                     if (debug)
                     {
-                        MessageBox.Show(StringAddon.ShowDiff(pages[index], new_webpage), "Debug: " + title);
+                       
+                        MessageBox.Show(add.ShowDiff(webpages_content_buffer[index], new_webpage_content), "Debug: " + title);
                     }
 
-                    dictionary[address] = now;
-                    pages[index] = new_webpage;
+                    webpages_diff_buffer[address] = now;
+                    webpages_content_buffer[index] = new_webpage_content;
                 }
                 view.notifyIcon1.BalloonTipText = "HP Changed " + title + "";
                 view.notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
@@ -164,20 +165,21 @@ namespace WebNotifier
                 return;
             }
 
-            string one = (string)view.listBox2.Items[index];
-            if (one != null && one != "")
+            string web_addresse = (string)view.listBox2.Items[index];
+
+            if (web_addresse != null && web_addresse != "")
             {
                 try
                 {
-                    browser.GoTo(one);
+                    browser.GoToNoWait(web_addresse);
                 }
                 catch (Exception e3)
                 {
-
+                    
                 }
                 try
                 {
-                    browser.WaitForComplete();
+                    browser.WaitForComplete(waitforcomplete);
                 }
                 catch (Exception e3)
                 {
@@ -185,7 +187,7 @@ namespace WebNotifier
                 }
 
 
-                string one_s = browser.Body.Text;
+                string webpage_content = browser.Body.Text;
 
 
                 lock (this)
@@ -206,7 +208,7 @@ namespace WebNotifier
                         {
                             try
                             {
-                                pages[index] = WebNotifier.Default.contentList[index];
+                                webpages_content_buffer[index] = WebNotifier.Default.contentList[index];
                             }
                             catch
                             {
@@ -223,26 +225,26 @@ namespace WebNotifier
                     title = "Unknown";
                     return;
                 }
-                if (pages[index] != null)
+                if (webpages_content_buffer[index] != null)
                 {
-                    if (!pages[index].Equals(one_s))
+                    if (!webpages_content_buffer[index].Equals(webpage_content))
                     {
 
-                        NotEqual(one, one_s, title, index);
+                        NotEqual(web_addresse, webpage_content, title, index);
 
                     }
 
                 }
                 else
                 {
-                    if (one_s != null && one_s != "")
+                    if (webpage_content != null && webpage_content != "")
                     {
-                        pages[index] = one_s;
+                        webpages_content_buffer[index] = webpage_content;
                         lock (this)
                         {
 
-                            WebNotifier.Default.webpageList.Insert(index, one);
-                            WebNotifier.Default.contentList.Insert(index, one_s);
+                            WebNotifier.Default.webpageList.Insert(index, web_addresse);
+                            WebNotifier.Default.contentList.Insert(index, webpage_content);
                         }
                     }
                 }
@@ -251,15 +253,24 @@ namespace WebNotifier
         }
         public string CollectInfo(string address)
         {
-            string one_s = null;
+            string new_webpage_content = null;
             try
             {
                 // IE browser = new IE();
                 using (IE browser = new IE())
                 {
+                    if (view.checkBox1.Checked)
+                    {
+                        browser.ShowWindow(WatiN.Core.Native.Windows.NativeMethods.WindowShowStyle.Hide);
+                    }
+                    else
+                    {
+                        browser.ShowWindow(WatiN.Core.Native.Windows.NativeMethods.WindowShowStyle.ShowMaximized);
+                    }
+                    
                     try
                     {
-                        browser.GoTo(address);
+                        browser.GoToNoWait(address);
                     }
                     catch (Exception e3)
                     {
@@ -267,7 +278,7 @@ namespace WebNotifier
                     }
                     try
                     {
-                        browser.WaitForComplete();
+                        browser.WaitForComplete(waitforcomplete);
                     }
                     catch (Exception e3)
                     {
@@ -275,7 +286,7 @@ namespace WebNotifier
                     }
 
 
-                    one_s = browser.Body.Text;
+                    new_webpage_content = browser.Body.Text;
 
                 }
             }
@@ -283,81 +294,84 @@ namespace WebNotifier
             {
 
             }
-            return one_s;
+            return new_webpage_content;
         }
         public LinkedList<DiffItem> Analyse(string source1, string source2)
         {
-            LinkedList<DiffItem> uerror = StringAddon.Analyse(source1, source2);
+            StringAddon add = new StringAddon();
+            LinkedList<DiffItem> uerror = add.Analyse(source1, source2);
             //  String[] paku = this.Differ(source1, source2);
             //  String result = string.Join(" : . : ",paku);
-            //  MessageBox.Show(result,"Diffrence");
+            //  MessageBox.Show(result,"Difference");
             return uerror;
         }
         private void MeasureInterference()
         {
-            int max = 5;
+            int max_trys = 5;
+            StringAddon add = new StringAddon();
+
             for (int i = 0; i < view.listBox2.Items.Count; i++)
             {
                 string address = (string)view.listBox2.Items[i];
-                LinkedList<DiffItem> last = null;
+                LinkedList<DiffItem> last_diff = null;
                 try
                 {
-                    last = dictionary[address];
+                    last_diff = webpages_diff_buffer[address];
                 }
                 catch
                 {
 
                 }
 
-                if (last == null)
+                if (last_diff == null)
                 {
 
-                    string alpha = null;
-                    string beta = null;
+                    string alpha_content = null;
+                    string beta_content = null;
 
-                    while (alpha == null)
+                    while (alpha_content == null)
                     {
-                        alpha = CollectInfo(address);
+                        alpha_content = CollectInfo(address);
                     }
 
-                    // if((alpha.First()<DiffItem>
                     int m = 0;
                     do
                     {
                         m++;
-                        while (beta == null)
+                        while (beta_content == null)
                         {
-                            beta = CollectInfo(address);
+                            beta_content = CollectInfo(address);
                         }
 
-                    } while (beta.Equals(alpha) && m < max);
+                    } while (beta_content.Equals(alpha_content) && m < max_trys);
 
-                    if (!alpha.Equals(beta))
+                    if (!alpha_content.Equals(beta_content))
                     {
 
-                        LinkedList<DiffItem> now = StringAddon.Analyse(alpha, beta);
+                        LinkedList<DiffItem> now = add.Analyse(alpha_content, beta_content);
                         if (now == null)
                         {
-                            MessageBox.Show("S336 Webworker Error NULL should not happened",
+                            //TODO:Replace with Utilities 
+                            MessageBox.Show(" Webworker Error NULL should not happened",
     "DebugMessage");
                         }
 
-                        dictionary[address] = now;
+                        webpages_diff_buffer[address] = now;
 
                     }
                     else
                     {
-                        DiffItem dummy = new DiffItem(0, 0)
+                        DiffItem dummy_item = new DiffItem(0, 0)
                         {
                             NoDiff = true
                         };
                         LinkedList<DiffItem> now = new LinkedList<DiffItem>();
-                        now.AddFirst(dummy);
+                        now.AddFirst(dummy_item);
 
 
-                        dictionary[address] = now;
+                        webpages_diff_buffer[address] = now;
                     }
-                    pages[i] = beta;
+                    webpages_content_buffer[i] = beta_content;
                 }
             }
         }

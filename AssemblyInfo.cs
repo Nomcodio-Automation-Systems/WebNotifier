@@ -50,29 +50,29 @@ namespace WebNotifier
 
     /// </example>
 
-    static public class AssemblyInfo
+     public class AssemblyInfo
 
     {
 
-        public static string Company => GetExecutingAssemblyAttribute<AssemblyCompanyAttribute>(a => a.Company);
-        public static string Product => GetExecutingAssemblyAttribute<AssemblyProductAttribute>(a => a.Product);
-        public static string Copyright => GetExecutingAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
-        public static string Trademark => GetExecutingAssemblyAttribute<AssemblyTrademarkAttribute>(a => a.Trademark);
-        public static string Title => GetExecutingAssemblyAttribute<AssemblyTitleAttribute>(a => a.Title);
-        public static string Description => GetExecutingAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
-        public static string Configuration => GetExecutingAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
-        public static string FileVersion => GetExecutingAssemblyAttribute<AssemblyFileVersionAttribute>(a => a.Version);
+        public  string Company => GetExecutingAssemblyAttribute<AssemblyCompanyAttribute>(a => a.Company);
+        public  string Product => GetExecutingAssemblyAttribute<AssemblyProductAttribute>(a => a.Product);
+        public  string Copyright => GetExecutingAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
+        public  string Trademark => GetExecutingAssemblyAttribute<AssemblyTrademarkAttribute>(a => a.Trademark);
+        public  string Title => GetExecutingAssemblyAttribute<AssemblyTitleAttribute>(a => a.Title);
+        public  string Description => GetExecutingAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
+        public  string Configuration => GetExecutingAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
+        public  string FileVersion => GetExecutingAssemblyAttribute<AssemblyFileVersionAttribute>(a => a.Version);
 
 
-        public static Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-        public static string VersionFull => Version.ToString();
-        public static string VersionMajor => Version.Major.ToString();
-        public static string VersionMinor => Version.Minor.ToString();
-        public static string VersionBuild => Version.Build.ToString();
-        public static string VersionRevision => Version.Revision.ToString();
+        public  Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+        public  string VersionFull => Version.ToString();
+        public  string VersionMajor => Version.Major.ToString();
+        public  string VersionMinor => Version.Minor.ToString();
+        public  string VersionBuild => Version.Build.ToString();
+        public  string VersionRevision => Version.Revision.ToString();
 
 
-        private static string GetExecutingAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
+        private  string GetExecutingAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
 
         {
 
@@ -182,7 +182,7 @@ namespace WebNotifier
 
         //----------------------------------------------------------------------
 
-        public static Version Version
+        public  Version Version
 
         {
 
@@ -217,7 +217,7 @@ namespace WebNotifier
 
         //----------------------------------------------------------------------
 
-        public static int StackTraceLevel { get; set; }
+        public  int StackTraceLevel { get; set; }
 
 
 
@@ -316,7 +316,7 @@ namespace WebNotifier
 
         /// <returns></returns>
 
-        private static Assembly GetAssembly(int stackTraceLevel)
+        private  Assembly GetAssembly(int stackTraceLevel)
 
         {
 

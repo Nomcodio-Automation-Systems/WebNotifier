@@ -9,14 +9,14 @@ namespace WebNotifier
 {
     class StringAddon
     {
-        private static int preDiff = 5;
-        private static int postDiff = 25;
-        private static int how_far = 8;
+        private  int preDiff = 5;
+        private  int postDiff = 25;
+        private  int how_far = 8;
         delegate DiffItem InternDelegate(bool s);
         delegate int LookHeadDelegate(int a, int b);
         delegate bool CheckDelegate(int pos, int expect);
 
-        public static int[] DifferI(string source1, string source2)
+        public  int[] DifferI(string source1, string source2)
         {
 
 
@@ -54,7 +54,7 @@ namespace WebNotifier
             else
             {
                 diff = set1.Except(set2).ToList();
-                diff = set2.Except(set1).ToList();
+               
                 System.Collections.IList c1 = set1.ToList();
 
                 int i = 0;
@@ -81,14 +81,14 @@ namespace WebNotifier
             return diffArrayPos;
         }
 
-        public static LinkedList<DiffItem> Analyse(string source1, string source2)
+        public  LinkedList<DiffItem> Analyse(string source1, string source2)
         {
             int[] paku = DifferI(source1, source2);
-            LinkedList<DiffItem> result = Shrink(paku);
+            LinkedList<DiffItem> result = ShrinkAConvert(paku);
             return result;
         }
 
-        public static LinkedList<DiffItem> Shrink(int[] list)
+        public  LinkedList<DiffItem> ShrinkAConvert(int[] list)
         {
             // no checks here
             int begin = list[ 0 ];
@@ -119,7 +119,7 @@ namespace WebNotifier
             };
             CheckDelegate check = delegate (int pos, int expect)
             {
-                //if true coutinue if no coutinue start
+                //if true continue if no continue start
                 if ( list[ pos ] != expect )
                 {
                     return true;
@@ -187,7 +187,7 @@ namespace WebNotifier
             }
             return numbers;
         }
-        public static bool Compare(LinkedList<DiffItem> ld1, LinkedList<DiffItem> ld2)
+        public  bool Compare2DiffItemLists(LinkedList<DiffItem> ld1, LinkedList<DiffItem> ld2)
         {
             bool result = true;
 
@@ -278,7 +278,7 @@ namespace WebNotifier
 
             return !result;
         }
-        public static bool Compare2(int[] s1, int[] s2)
+        public  bool Compare2(int[] s1, int[] s2)
         {
             bool result = true;
 
@@ -358,7 +358,7 @@ namespace WebNotifier
             }
             return !result;
         }
-        public static int[] GetDiffIndex(string str1, string str2)
+        public  int[] GetDiffIndex(string str1, string str2)
         {
             List<int> list = new List<int>();
 
@@ -384,7 +384,7 @@ namespace WebNotifier
             }
             return list.ToArray<int>();
         }
-        public static string ShowDiff(string alpha, string beta)
+        public  string ShowDiff(string alpha, string beta)
         {
 
             List<string> diff;
@@ -409,7 +409,7 @@ namespace WebNotifier
             return builder.ToString();
 
         }
-        public static void MergeDiffIndex(int[] alpha, int[] beta)
+        public  void MergeDiffIndex(int[] alpha, int[] beta)
         {
             List<int> list = new List<int>();
 

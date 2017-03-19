@@ -218,7 +218,9 @@
             this.Controls.Add(this.textBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "WebNotifier";
+            AssemblyInfo info=  new AssemblyInfo();
+            string version = info.Version.ToString();
+            this.Text = "WebNotifier          V."+version;
             this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.ResumeLayout(false);

@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace WebNotifier
 {
-    public static class FormUtils
+    public  class FormUtils
     {
         private static Icon _defaultFormIcon;
         public static Icon DefaultFormIcon
