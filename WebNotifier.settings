@@ -18,7 +18,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="textBox6" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="checkBox1" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

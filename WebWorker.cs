@@ -32,15 +32,7 @@ namespace WebNotifier
         public WebWorker(Form1 other)
         {
             view = other;
-            if (WebNotifier.Default.contentList == null)
-            {
-                WebNotifier.Default.contentList = new StringCollection();
-            }
 
-            if (WebNotifier.Default.webpageList == null)
-            {
-                WebNotifier.Default.webpageList = new StringCollection();
-            }
         }
         public Form1 View
         {
@@ -66,7 +58,7 @@ namespace WebNotifier
             List<string> diff;
             IEnumerable<string> set1 = source1.Split(' ').Distinct();
             IEnumerable<string> set2 = source2.Split(' ').Distinct();
-         
+
             if (set2.Count() > set1.Count())
             {
                 diff = set2.Except(set1).ToList();
@@ -117,7 +109,7 @@ namespace WebNotifier
 
                         webpages_diff_buffer[address] = now;
                     }
-                    webpages_content_buffer[index] = new_webpage_content;
+                    webpages_content_buffer.Add(new_webpage_content);
                     result = false;
                 }
             }
@@ -145,12 +137,12 @@ namespace WebNotifier
                     //now = StringAddon.Analyse(alpha, beta);
                     if (debug)
                     {
-                       
+
                         MessageBox.Show(add.ShowDiff(webpages_content_buffer[index], new_webpage_content), "Debug: " + title);
                     }
 
                     webpages_diff_buffer[address] = now;
-                    webpages_content_buffer[index] = new_webpage_content;
+                    webpages_content_buffer.Add(new_webpage_content);
                 }
                 view.notifyIcon1.BalloonTipText = "HP Changed " + title + "";
                 view.notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
@@ -175,7 +167,7 @@ namespace WebNotifier
                 }
                 catch (Exception e3)
                 {
-                    
+
                 }
                 try
                 {
@@ -208,7 +200,7 @@ namespace WebNotifier
                         {
                             try
                             {
-                                webpages_content_buffer[index] = WebNotifier.Default.contentList[index];
+                                webpages_content_buffer.Add(WebNotifier.Default.contentList[index]);
                             }
                             catch
                             {
@@ -225,7 +217,7 @@ namespace WebNotifier
                     title = "Unknown";
                     return;
                 }
-                if (webpages_content_buffer[index] != null)
+                if (webpages_content_buffer.ElementAtOrDefault(index) != null)
                 {
                     if (!webpages_content_buffer[index].Equals(webpage_content))
                     {
@@ -239,7 +231,7 @@ namespace WebNotifier
                 {
                     if (webpage_content != null && webpage_content != "")
                     {
-                        webpages_content_buffer[index] = webpage_content;
+                        webpages_content_buffer.Add(webpage_content);
                         lock (this)
                         {
 
@@ -267,7 +259,7 @@ namespace WebNotifier
                     {
                         browser.ShowWindow(WatiN.Core.Native.Windows.NativeMethods.WindowShowStyle.ShowMaximized);
                     }
-                    
+
                     try
                     {
                         browser.GoToNoWait(address);
@@ -371,7 +363,8 @@ namespace WebNotifier
 
                         webpages_diff_buffer[address] = now;
                     }
-                    webpages_content_buffer[i] = beta_content;
+
+                    webpages_content_buffer.Add(beta_content);
                 }
             }
         }
@@ -484,7 +477,7 @@ namespace WebNotifier
             }
             return diff.ToString();
         }
-        
+
         public void Dispose()
         {
 

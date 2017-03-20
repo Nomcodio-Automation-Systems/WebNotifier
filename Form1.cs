@@ -33,15 +33,32 @@ namespace WebNotifier
             //textBox4.Text = WebNotifier.Default.textBox4;
             //textBox5.Text = WebNotifier.Default.textBox5;
             textBox6.Text = WebNotifier.Default.textBox6;
+            if (textBox6.Text == null || textBox6.Text == "")
+            {
+                textBox6.Text = "5";
+            }
             checkBox1.Checked = WebNotifier.Default.checkBox1;
             checkBox2.Checked = WebNotifier.Default.checkBox2;
-            if ( WebNotifier.Default.webpageList != null )
+            if (WebNotifier.Default.webpageList != null)
             {
-                foreach (string alpha_value in WebNotifier.Default.webpageList )
+                foreach (string alpha_value in WebNotifier.Default.webpageList)
                 {
                     listBox2.Items.Add(alpha_value);
                 }
 
+            }
+            if (WebNotifier.Default.contentList == null)
+            {
+                WebNotifier.Default.contentList = new StringCollection();
+            }
+
+            if (WebNotifier.Default.webpageList == null)
+            {
+                WebNotifier.Default.webpageList = new StringCollection();
+            }
+            if (WebNotifier.Default.diffrentList == null)
+            {
+                WebNotifier.Default.diffrentList = new StringCollection();
             }
         }
         ~Form1()
@@ -49,7 +66,7 @@ namespace WebNotifier
             webi.Dispose();
             // thread_web.Abort();
             Dispose();
-            
+
         }
         /// <summary>
         /// 
@@ -92,10 +109,10 @@ namespace WebNotifier
 
             double nn;
             bool isNumeric = int.TryParse(textBox6.Text, out int n);
-            if ( !isNumeric )
+            if (!isNumeric)
             {
                 bool isDouble = double.TryParse(textBox6.Text, out nn);
-                if ( !isDouble )
+                if (!isDouble)
                 {
                     MessageBox.Show("Setting for the wait time isn't a number");
                     return;
@@ -104,12 +121,12 @@ namespace WebNotifier
             }
             else
             {
-                nn = ( double )n;
+                nn = (double)n;
             }
-           
-            lock ( webi )
+
+            lock (webi)
             {
-                if ( !webi.Running )
+                if (!webi.Running)
                 {
                     webi.WaitTime = nn;
 
@@ -118,7 +135,7 @@ namespace WebNotifier
                     thread_web.Start();
                 }
             }
-            
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -134,7 +151,7 @@ namespace WebNotifier
             WindowState = FormWindowState.Normal;
             showflag = true;
             SafeNativeMethods.Show2(this);
-            
+
             // this.TopMost = true;
             // this.TopMost = false;
             //ShowMe.Show(this);
@@ -150,7 +167,7 @@ namespace WebNotifier
             WindowState = FormWindowState.Normal;
             showflag = true;
             SafeNativeMethods.Show2(this);
-           // ShowMe.Show2(this);
+            // ShowMe.Show2(this);
             //this.TopMost = true;
             // this.TopMost = false;
             // ShowMe.Show(this);
@@ -158,9 +175,9 @@ namespace WebNotifier
 
         private void Form1_Resize(object sender, System.EventArgs e)
         {
-            if (checkBox2.Checked )
+            if (checkBox2.Checked)
             {
-                if ( FormWindowState.Minimized == WindowState || showflag)
+                if (FormWindowState.Minimized == WindowState || showflag)
                 {
                     ShowInTaskbar = false;
                     notifyIcon1.Visible = true;
@@ -174,7 +191,7 @@ namespace WebNotifier
                     Hide();
                 }
 
-                else if ( FormWindowState.Normal == WindowState)
+                else if (FormWindowState.Normal == WindowState)
                 {
                     showflag = false;
                     ShowInTaskbar = true;
@@ -231,7 +248,7 @@ namespace WebNotifier
             // InvokeRequired required compares the thread ID of the
             // calling thread to the thread ID of the creating thread.
             // If these threads are different, it returns true.
-            if (listBox1.InvokeRequired )
+            if (listBox1.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(SetText);
                 Invoke(d, new object[] { text, url });
@@ -250,8 +267,8 @@ namespace WebNotifier
             ListBox lb = sender as ListBox;
 
 
-            ListItem myObject = ( ListItem )lb.SelectedItem;
-            if ( myObject != null )
+            ListItem myObject = (ListItem)lb.SelectedItem;
+            if (myObject != null)
             {
                 System.Diagnostics.Process.Start(myObject.URL);
             }
@@ -259,15 +276,15 @@ namespace WebNotifier
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if ( textBox1.Text == null || textBox1.Text == "" )
+            if (textBox1.Text == null || textBox1.Text == "")
             {
                 MessageBox.Show("Setting are no Internet addresse");
                 return;
             }
-            if ( textBox1.Text != null && textBox1.Text != "" )
+            if (textBox1.Text != null && textBox1.Text != "")
             {
                 bool result = Uri.TryCreate(textBox1.Text, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-                if ( !result )
+                if (!result)
                 {
                     MessageBox.Show("Setting are no Internet addresse");
                     return;
@@ -275,32 +292,32 @@ namespace WebNotifier
             }
             listBox2.Items.Add(textBox1.Text);
 
-            if ( WebNotifier.Default.webpageList == null )
+            if (WebNotifier.Default.webpageList == null)
             {
                 WebNotifier.Default.webpageList = new StringCollection();
             }
             WebNotifier.Default.webpageList.Add(textBox1.Text);
 
 
-            if ( WebNotifier.Default.diffrentList == null )
+            if (WebNotifier.Default.diffrentList == null)
             {
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
             string address = textBox1.Text;
             Dictionary<string, LinkedList<DiffItem>> dic = webi.DIC;
             string alpha = null;
-            while ( alpha == null )
+            while (alpha == null)
             {
                 alpha = webi.CollectInfo(address);
             }
             string beta = null;
-            while ( beta == null )
+            while (beta == null)
             {
                 beta = webi.CollectInfo(address);
             }
             LinkedList<DiffItem> now = webi.Analyse(alpha, beta);
 
-            dic[ address ] = now;
+            dic[address] = now;
 
             WebNotifier.Default.Save();
             textBox1.Text = "";
@@ -310,21 +327,21 @@ namespace WebNotifier
         {
             string copy = null;
             int i = 0;
-            if ( WebNotifier.Default.webpageList == null )
+            if (WebNotifier.Default.webpageList == null)
             {
                 WebNotifier.Default.webpageList = new StringCollection();
             }
 
-            while ( listBox2.SelectedItems.Count != 0 )
+            while (listBox2.SelectedItems.Count != 0)
 
             {
-                copy = (string)listBox2.SelectedItems[ 0 ];
-                listBox2.Items.Remove(listBox2.SelectedItems[ 0 ]);
+                copy = (string)listBox2.SelectedItems[0];
+                listBox2.Items.Remove(listBox2.SelectedItems[0]);
                 i++;
 
             }
             LinkedList<string> List = new LinkedList<string>(WebNotifier.Default.webpageList.Cast<string>());
-            if ( copy != null )
+            if (copy != null)
             {
                 List.Remove(copy);
             }
@@ -342,10 +359,10 @@ namespace WebNotifier
         {
             string url = "";
             string cmd = "_s-xclick";
-           // string business = "test@msn.com";  // your paypal email
+            // string business = "test@msn.com";  // your paypal email
             //string description = "Donation";            // '%20' represents a space. remember HTML!
             //string country = "DE";                  // AU, US, etc.
-           // string currency = "EUR";                 // AUD, USD, etc.
+            // string currency = "EUR";                 // AUD, USD, etc.
             string buttonID = "STWQN7AUYV6LA";
             url += "https://www.paypal.com/cgi-bin/webscr" +
                 "?cmd=" + cmd +
