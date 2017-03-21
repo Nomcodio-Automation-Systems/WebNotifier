@@ -40,9 +40,3 @@ E) Implement additional filters for custom support
 F) After everything works we try an export to android if we at this point we will forge an repro which seperate the 'engine' from both programs
 ```
 
-## Authors
-
-* **Niki Radinsky** - *Initial work* - [WebNotifier](https://github.com/Nomcodio-Automation-Systems/WebNotifier)
-
-See also the list of [contributors]https://github.com/Nomcodio-Automation-Systems/WebNotifier/contributors) who participated in this project.
-
