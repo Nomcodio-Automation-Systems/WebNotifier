@@ -22,7 +22,7 @@ This program is written in C# compile it with Microsoft Visual Studio or another
 See also current dependencies
 ```
 
-###Current Dependencies
+### Current Dependencies
 
 WatiN(license https://www.codeproject.com/info/cpol10.aspx) 
 .NET 4.5 (Minimum)
@@ -30,7 +30,7 @@ WatiN(license https://www.codeproject.com/info/cpol10.aspx)
 Unfortunately is the domain for WatiN expired but here is the backup 
 https://www.codeproject.com/Articles/17064/WatiN-Web-Application-Testing-In-NET
 
-###Future Plans
+### Future Plans
 ```
 A) Full documentation
 B) Fix some bugs
