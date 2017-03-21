@@ -271,5 +271,17 @@ namespace WebNotifier {
                 this["diffrentList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PopUp {
+            get {
+                return ((bool)(this["PopUp"]));
+            }
+            set {
+                this["PopUp"] = value;
+            }
+        }
     }
 }

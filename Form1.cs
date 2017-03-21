@@ -39,6 +39,7 @@ namespace WebNotifier
             }
             checkBox1.Checked = WebNotifier.Default.checkBox1;
             checkBox2.Checked = WebNotifier.Default.checkBox2;
+            checkBox3.Checked = WebNotifier.Default.PopUp;
             if (WebNotifier.Default.webpageList != null)
             {
                 foreach (string alpha_value in WebNotifier.Default.webpageList)
@@ -374,6 +375,12 @@ namespace WebNotifier
             //    "&bn=" + "PP%2dDonationsBF";
             "";
             System.Diagnostics.Process.Start(url);
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            WebNotifier.Default.PopUp = checkBox3.Checked;
+            WebNotifier.Default.Save();
         }
     }
 }

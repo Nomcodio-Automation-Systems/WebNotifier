@@ -144,10 +144,13 @@ namespace WebNotifier
                     webpages_diff_buffer[address] = now;
                     webpages_content_buffer.Add(new_webpage_content);
                 }
-                view.notifyIcon1.BalloonTipText = "HP Changed " + title + "";
-                view.notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
-                view.notifyIcon1.BalloonTipTitle = "Alert!";
-                view.notifyIcon1.ShowBalloonTip(500000);
+                if (!view.checkBox3.Checked)
+                {
+                    view.notifyIcon1.BalloonTipText = "HP Changed " + title + "";
+                    view.notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+                    view.notifyIcon1.BalloonTipTitle = "Alert!";
+                    view.notifyIcon1.ShowBalloonTip(500000);
+                }
             }
         }
         private void OuterCode(IE browser, TimeSpan span, int index)
