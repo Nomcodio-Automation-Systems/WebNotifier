@@ -122,7 +122,7 @@ namespace WebNotifier
                     LastAddresse = address;
                     WebNotifier.Default.webpageList.Insert(index, address);
                     WebNotifier.Default.contentList.Insert(index, new_webpage_content);
-                    view.SetText(title, address);
+                    view.SetTextList1(title, address);
                     //String alpha = null;
                     //while ( alpha == null )
                     //{

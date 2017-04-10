@@ -97,6 +97,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>WebNotifier.settings</DependentUpon>
     </Compile>
+    <Compile Include="WebSocket.cs" />
     <Compile Include="WebWorker.cs" />
     <Compile Include="WebWorkerSingelton.cs" />
     <EmbeddedResource Include="Form1.resx">

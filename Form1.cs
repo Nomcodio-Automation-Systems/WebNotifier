@@ -20,8 +20,8 @@ namespace WebNotifier
         private WebWorker webi = null;
         Thread thread_web = null;
         private bool showflag = false;
-        delegate void SetTextCallback(string text, string url);
-
+        delegate void SetTextCallback1(string text, string url);
+        delegate void SetTextCallback2(string text);
         public Form1()
         {
             InitializeComponent();
@@ -244,14 +244,14 @@ namespace WebNotifier
         {
 
         }
-        public void SetText(string text, string url)
+        public void SetTextList1(string text, string url)
         {
             // InvokeRequired required compares the thread ID of the
             // calling thread to the thread ID of the creating thread.
             // If these threads are different, it returns true.
             if (listBox1.InvokeRequired)
             {
-                SetTextCallback d = new SetTextCallback(SetText);
+                SetTextCallback1 d = new SetTextCallback1(SetTextList1);
                 Invoke(d, new object[] { text, url });
             }
             else
@@ -259,6 +259,24 @@ namespace WebNotifier
                 listBox1.BeginUpdate();
                 listBox1.Items.Add(new ListItem(text, url));
                 listBox1.EndUpdate();
+
+            }
+        }
+        public void SetTextList2(string text)
+        {
+            // InvokeRequired required compares the thread ID of the
+            // calling thread to the thread ID of the creating thread.
+            // If these threads are different, it returns true.
+            if (listBox2.InvokeRequired)
+            {
+                SetTextCallback2 d = new SetTextCallback2(SetTextList2);
+                Invoke(d, new object[] { text});
+            }
+            else
+            {
+                listBox2.BeginUpdate();
+                listBox2.Items.Add((text));
+                listBox2.EndUpdate();
 
             }
         }
@@ -291,7 +309,7 @@ namespace WebNotifier
                     return;
                 }
             }
-            listBox2.Items.Add(textBox1.Text);
+
 
             if (WebNotifier.Default.webpageList == null)
             {
@@ -305,22 +323,36 @@ namespace WebNotifier
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
             string address = textBox1.Text;
-            Dictionary<string, LinkedList<DiffItem>> dic = webi.DIC;
-            string alpha = null;
-            while (alpha == null)
-            {
-                alpha = webi.CollectInfo(address);
-            }
-            string beta = null;
-            while (beta == null)
-            {
-                beta = webi.CollectInfo(address);
-            }
-            LinkedList<DiffItem> now = webi.Analyse(alpha, beta);
 
-            dic[address] = now;
+            Thread t1 = new Thread
+          (delegate ()
+          {
+              Dictionary<string, LinkedList<DiffItem>> dic;
+              lock (webi)
+              {
+                  dic = webi.DIC;
+              }
+              string alpha = null;
+              while (alpha == null)
+              {
+                  alpha = webi.CollectInfo(address);
+              }
+              string beta = null;
+              while (beta == null)
+              {
+                  beta = webi.CollectInfo(address);
+              }
+              LinkedList<DiffItem> now = webi.Analyse(alpha, beta);
+              lock (webi)
+              {
+                  dic[address] = now;
+                  SetTextList2(address);
+                  WebNotifier.Default.Save();
+              }
+          });
+            t1.SetApartmentState(ApartmentState.STA);
+            t1.Start();
 
-            WebNotifier.Default.Save();
             textBox1.Text = "";
         }
 
