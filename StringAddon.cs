@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,42 +10,132 @@ namespace WebNotifier
 {
     class StringAddon
     {
-        private  int preDiff = 5;
-        private  int postDiff = 25;
-        private  int how_far = 8;
+        private int preDiff = 10;
+        private int postDiff = 25;
+        private int how_far = 5;
         delegate DiffItem InternDelegate(bool s);
         delegate int LookHeadDelegate(int a, int b);
         delegate bool CheckDelegate(int pos, int expect);
 
-        public  int[] DifferI(string source1, string source2)
+        public T GetSafeObjectFromDic<T>(Dictionary<string,T> dic, string key)
+        {
+            if (dic.ContainsKey(key))
+            {
+                return dic[key];
+            }
+
+            return default(T);
+        }
+        public void InsertSafeList<T>(List<T> list, T obj,  int pos)
+        {
+            int numbers_count = list.Count;
+
+            if ((pos + 1) > numbers_count)
+            {
+
+                if (((pos + 1) - numbers_count) == 1)
+                {
+                    list.Add(obj);
+                    return;
+                }
+                for (int i = 0; i < (pos - numbers_count); i++)
+                {
+                    list.Add(default(T));
+                }
+                list.Add(obj);
+                return;
+            }
+            else
+            {
+                list.Insert(pos, obj);
+            }
+
+        }
+        public T GetSafeFromList<T>(List<T> list, int index)
+        {
+            int numbers_count = list.Count;
+
+            if((index + 1) > numbers_count)
+            {
+                return default(T);
+            }
+
+            if(list[index] == null )
+            {
+                return default(T);
+            }
+            if(list[index] is string)
+            {
+                if(list[index].ToString() == "")
+                {
+                    return default(T);
+                } 
+            }
+            return list[index];
+        }
+        public void InsertSafeCollection(StringCollection collect, string str, int pos)
+        {
+
+
+            if (collect == null)
+            {
+                collect = new StringCollection();
+            }
+            int numbers_count = collect.Count;
+
+            if ((pos + 1) > numbers_count)
+            {
+
+                if (((pos + 1) - numbers_count) == 1)
+                {
+                    collect.Add(str);
+                    return;
+                }
+                for (int i = 0; i < (pos - numbers_count); i++)
+                {
+                    collect.Add(null);
+                }
+                collect.Add(str);
+                return;
+            }
+            else
+            {
+                collect.Insert(pos, str);
+            }
+
+        }
+        public int[] DifferI(string source1, string source2)
         {
 
 
             List<string> diff;
             IEnumerable<string> set1 = source1.Split(' ').Distinct();
             IEnumerable<string> set2 = source2.Split(' ').Distinct();
-            int[] diffArrayPos = new int[ 1024 ];
+            //int[] diffArrayPos = new int[1024];
+            List<int> diffListPos = new List<int>();
 
-            if ( set2.Count() > set1.Count() )
+            if (set2.Count() > set1.Count())
             {
                 diff = set2.Except(set1).ToList();
                 System.Collections.IList c1 = set2.ToList();
 
                 int i = 0;
                 int j = 0;
-                foreach ( string value in c1 )
+                foreach (string value in c1)
                 {
-                    if ( j >= 1024 )
+                    //{
+                    //    if (j >= 1024)
+                    //    {
+                    //        break;
+                    //    }
+                    if ((diff.ToArray()).Length <= j)
                     {
                         break;
                     }
-                    if ( ( diff.ToArray() ).Length <= j )
+                    if (diff[j] == value)
                     {
-                        break;
-                    }
-                    if ( diff[ j ] == value )
-                    {
-                        diffArrayPos[ j ] = i;
+                        diffListPos.Add(i);
+                        // diffArrayPos[j] = i;
                         j++;
                     }
 
@@ -54,54 +145,121 @@ namespace WebNotifier
             else
             {
                 diff = set1.Except(set2).ToList();
-               
+
                 System.Collections.IList c1 = set1.ToList();
 
                 int i = 0;
                 int j = 0;
-                foreach ( string value in c1 )
+                foreach (string value in c1)
                 {
-                    if ( j >= 1024 )
+                    //if (j >= 1024)
+                    //{
+                    //    break;
+                    //}
+                    if ((diff.ToArray()).Length <= j)
                     {
                         break;
                     }
-                    if ( ( diff.ToArray() ).Length <= j )
+                    if (diff[j] == value)
                     {
-                        break;
-                    }
-                    if ( diff[ j ] == value )
-                    {
-                        diffArrayPos[ j ] = i;
-                        j++;
+                        // diffArrayPos[j] = i;
+                        diffListPos.Add(i);
                     }
 
                     i++;
                 }
             }
-            return diffArrayPos;
+            return diffListPos.ToArray();
         }
 
-        public  LinkedList<DiffItem> Analyse(string source1, string source2)
+        public List<DiffItem> Analyse(string source1, string source2)
         {
             int[] paku = DifferI(source1, source2);
-            LinkedList<DiffItem> result = ShrinkAConvert(paku);
+            List<DiffItem> result = ShrinkAConvert(paku);
             return result;
         }
-
-        public  LinkedList<DiffItem> ShrinkAConvert(int[] list)
+        public List<DiffItem> ShrinkAConvert(int[] list)
         {
+            if (list.Length == 0)
+            {
+                List<DiffItem> dummy = new List<DiffItem>();
+                DiffItem d1 = new DiffItem(0, 0)
+                {
+                    NoDiff = true
+                };
+                dummy.Add(d1);
+                return dummy;
+
+            }
+
+            Stack<DiffItem> stack = new Stack<DiffItem>();
+            int save_item = list[0];
+            int save_index = 0;
+            for (int i = 0; i < list.Length;)
+            {
+
+                DiffItem a = new DiffItem(0, 0)
+                {
+                    Start = save_item,
+                    End = save_item
+                };
+                stack.Push(a);
+
+
+
+                for (int w = save_index; w < list.Length; w++)
+                {
+                    save_index = w;
+                    if (list[w] - save_item > how_far)
+                    {
+                        save_item = list[w];
+                        a.End = w - 1;
+                        break;
+                    }
+
+                }
+
+                i = save_index;
+                if (i >= list.Length - 1)
+                {
+                    break;
+                }
+            }
+            Stack<DiffItem> stack_b = new Stack<DiffItem>();
+
+            while (stack.Count > 0)
+            {
+
+                stack_b.Push(stack.Pop());
+            }
+            List<DiffItem> re = stack_b.ToList<DiffItem>();
+            return re;
+        }
+        public List<DiffItem> ShrinkBConvert(int[] list)
+        {
+            if (list.Length == 0)
+            {
+                List<DiffItem> dummy = new List<DiffItem>();
+                DiffItem d1 = new DiffItem(0, 0)
+                {
+                    NoDiff = true
+                };
+                dummy.Add(d1);
+                return dummy;
+                
+            }
             // no checks here
-            int begin = list[ 0 ];
-            LinkedList<DiffItem> numbers = new LinkedList<DiffItem>();
+            int begin = list[0];
+            List<DiffItem> numbers = new List<DiffItem>();
 
 
 
-        
+
 
             bool flagnew = false;
             InternDelegate new_number = delegate (bool b)
             {
-                if ( b == true )
+                if (b == true)
                 {
                     return numbers.Last();
                 }
@@ -114,13 +272,13 @@ namespace WebNotifier
             //??
             LookHeadDelegate look = delegate (int value, int m)
             {
-                int result = value + ( m );
+                int result = value + (m);
                 return result;
             };
             CheckDelegate check = delegate (int pos, int expect)
             {
                 //if true continue if no continue start
-                if ( list[ pos ] != expect )
+                if (list[pos] != expect)
                 {
                     return true;
                 }
@@ -130,9 +288,9 @@ namespace WebNotifier
                 }
             };
             // change to for an make value
-            for ( int w = 0 ; w < list.Length ; w++ )
+            for (int w = 0; w < list.Length; w++)
             {
-                int value = list[ w ];
+                int value = list[w];
                 DiffItem diff = new_number(flagnew);
                 flagnew = false;
 
@@ -142,11 +300,11 @@ namespace WebNotifier
 
                 bool ended = false;
                 int jump = 0;
-                for ( int leng = 0 ; leng < how_far ; leng++ )
+                for (int leng = w; leng < (how_far + w) && (leng + w) < list.Length; leng++)
                 {
                     int expect = look(value, leng);
                     //true to be wrong
-                    if ( check(leng + w, expect) )
+                    if (check(leng + w, expect))
                     {
 
 
@@ -158,14 +316,14 @@ namespace WebNotifier
                     }
                     else
                     {
-                        numbers.AddLast(diff);
+                        numbers.Add(diff);
                         diff = new_number(true);
                         diff.Start = value;
                         diff.End = value;
                         // result[counter] = sim;
                         // z = z + 1;
                         jump = leng;
-                        if ( ended == true )
+                        if (ended == true)
                         {
 
                             ended = false;
@@ -175,49 +333,50 @@ namespace WebNotifier
 
 
                 }
-                if ( ended == true )
+                if (ended == true)
                 {
                     diff.End = value;
-                    numbers.AddLast(diff);
+                    numbers.Add(diff);
                     flagnew = true;
                 }
                 // we need to over jump what we already have
                 w = w + jump;
 
             }
+            numbers = numbers.Distinct().ToList();
             return numbers;
         }
-        public  bool Compare2DiffItemLists(LinkedList<DiffItem> ld1, LinkedList<DiffItem> ld2)
+        public bool Compare2DiffItemLists(List<DiffItem> ld1, List<DiffItem> ld2)
         {
             bool result = true;
 
             // s1 should be the longer one
-         
+
 
             DiffItem[] s1 = ld1.ToArray();
             DiffItem[] s2 = ld2.ToArray();
 
-            for ( int i = 0 ; i < s1.Length ; i++ )
+            for (int i = 0; i < s1.Length; i++)
             {
 
                 // outside of index
-                if ( ( i ) >= ( s2.Length ) )
+                if ((i) >= (s2.Length))
                 {
                     result = false;
                     break;
                 }
 
-                int diff = Math.Abs(s1[ i ].Start - s2[ i ].Start);
-                if ( diff > preDiff )
+                int diff = Math.Abs(s1[i].Start - s2[i].Start);
+                if (diff > preDiff)
                 {
                     bool result2 = false;
 
-                    for ( int j = 0 ; j < s2.Length ; j++ )
+                    for (int j = 0; j < s2.Length; j++)
                     {
 
-                        int diff2 = Math.Abs(s1[ i ].Start - s2[ j ].Start);
+                        int diff2 = Math.Abs(s1[i].Start - s2[j].Start);
 
-                        if ( diff2 <= preDiff )
+                        if (diff2 <= preDiff)
                         {
                             result2 = true;
                             i = j;
@@ -227,27 +386,27 @@ namespace WebNotifier
 
 
                     }
-                    if ( result2 == false )
+                    if (result2 == false)
                     {
                         result = false;
                         break;
                     }
 
                 }
-                if ( ( i ) >= ( s1.Length ) )
+                if ((i) >= (s1.Length))
                 {
                     result = true;
                     break;
                 }
-                if ( ( i ) >= ( s2.Length ) )
+                if ((i) >= (s2.Length))
                 {
                     result = false;
                     break;
                 }
-               
 
-                int diff3 = Math.Abs(s1[ i ].End - s2[ i ].End);
-                if ( diff3 > postDiff )
+
+                int diff3 = Math.Abs(s1[i].End - s2[i].End);
+                if (diff3 > postDiff)
                 {
                     //bool result2 = false;
                     //j = 0;
@@ -278,34 +437,34 @@ namespace WebNotifier
 
             return !result;
         }
-        public  bool Compare2(int[] s1, int[] s2)
+        public bool Compare2(int[] s1, int[] s2)
         {
             bool result = true;
 
             // s1 should be the longer one
             bool checker = true;
 
-            for ( int i = 0 ; i < s1.Length ; i++ )
+            for (int i = 0; i < s1.Length; i++)
             {
 
                 // outside of index
-                if ( ( i + 1 ) > ( s2.Length ) )
+                if ((i + 1) > (s2.Length))
                 {
                     result = false;
                     break;
                 }
-                if ( checker )
+                if (checker)
                 {
-                    int diff = Math.Abs(s1[ i ] - s2[ i ]);
-                    if ( diff > preDiff )
+                    int diff = Math.Abs(s1[i] - s2[i]);
+                    if (diff > preDiff)
                     {
                         bool result2 = false;
 
-                        for ( int j = 0 ; j < s2.Length ; j++ )
+                        for (int j = 0; j < s2.Length; j++)
                         {
-                            int diff2 = Math.Abs(s1[ j ] - s2[ i ]);
+                            int diff2 = Math.Abs(s1[j] - s2[i]);
 
-                            if ( diff2 <= preDiff )
+                            if (diff2 <= preDiff)
                             {
                                 result2 = true;
                                 i = j;
@@ -315,7 +474,7 @@ namespace WebNotifier
 
 
                         }
-                        if ( result2 == false )
+                        if (result2 == false)
                         {
                             result = false;
                             break;
@@ -326,8 +485,8 @@ namespace WebNotifier
                 }
                 else
                 {
-                    int diff = Math.Abs(s1[ i ] - s2[ i ]);
-                    if ( diff > postDiff )
+                    int diff = Math.Abs(s1[i] - s2[i]);
+                    if (diff > postDiff)
                     {
                         //bool result2 = false;
                         //j = 0;
@@ -358,40 +517,40 @@ namespace WebNotifier
             }
             return !result;
         }
-        public  int[] GetDiffIndex(string str1, string str2)
+        public int[] GetDiffIndex(string str1, string str2)
         {
             List<int> list = new List<int>();
 
 
-            if ( str1 == null || str2 == null )
+            if (str1 == null || str2 == null)
             {
                 return list.ToArray<int>();
             }
 
             int length = Math.Min(str1.Length, str2.Length);
 
-            for ( int index = 0 ; index < length ; index++ )
+            for (int index = 0; index < length; index++)
             {
-                if ( str1[ index ] != str2[ index ] )
+                if (str1[index] != str2[index])
                 {
 
                     list.Add(index);
                 }
             }
-            if ( str1.Length != str2.Length )
+            if (str1.Length != str2.Length)
             {
 
             }
             return list.ToArray<int>();
         }
-        public  string ShowDiff(string alpha, string beta)
+        public string ShowDiff(string alpha, string beta)
         {
 
             List<string> diff;
             IEnumerable<string> set1 = alpha.Split(' ').Distinct();
             IEnumerable<string> set2 = beta.Split(' ').Distinct();
 
-            if ( set2.Count() > set1.Count() )
+            if (set2.Count() > set1.Count())
             {
                 diff = set2.Except(set1).ToList();
             }
@@ -401,7 +560,7 @@ namespace WebNotifier
             }
 
             StringBuilder builder = new StringBuilder();
-            foreach ( string value in diff )
+            foreach (string value in diff)
             {
                 builder.Append(value);
                 builder.Append('.');
@@ -409,21 +568,21 @@ namespace WebNotifier
             return builder.ToString();
 
         }
-        public  void MergeDiffIndex(int[] alpha, int[] beta)
+        public void MergeDiffIndex(int[] alpha, int[] beta)
         {
             List<int> list = new List<int>();
 
-            for ( int index = 0 ; index < alpha.Length ; index++ )
+            for (int index = 0; index < alpha.Length; index++)
             {
 
-                if ( alpha[ index ] != beta[ index ] )
+                if (alpha[index] != beta[index])
                 {
 
 
                 }
                 else
                 {
-                    list.Add(alpha[ index ]);
+                    list.Add(alpha[index]);
                 }
             }
         }

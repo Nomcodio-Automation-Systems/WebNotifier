@@ -15,6 +15,9 @@
         {
             if (disposing && (components != null))
             {
+                webi.Dispose();
+                // thread_web.Abort();
+              
                 components.Dispose();
             }
             base.Dispose(disposing);

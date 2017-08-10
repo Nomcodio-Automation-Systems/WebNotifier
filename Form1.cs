@@ -62,13 +62,7 @@ namespace WebNotifier
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
         }
-        ~Form1()
-        {
-            webi.Dispose();
-            // thread_web.Abort();
-            Dispose();
-
-        }
+       
         /// <summary>
         /// 
         /// </summary>
@@ -257,7 +251,7 @@ namespace WebNotifier
             else
             {
                 listBox1.BeginUpdate();
-                listBox1.Items.Add(new ListItem(text, url));
+                listBox1.Items.Add(new UrlListItem(text, url));
                 listBox1.EndUpdate();
 
             }
@@ -270,7 +264,7 @@ namespace WebNotifier
             if (listBox2.InvokeRequired)
             {
                 SetTextCallback2 d = new SetTextCallback2(SetTextList2);
-                Invoke(d, new object[] { text});
+                Invoke(d, new object[] { text });
             }
             else
             {
@@ -286,7 +280,7 @@ namespace WebNotifier
             ListBox lb = sender as ListBox;
 
 
-            ListItem myObject = (ListItem)lb.SelectedItem;
+            UrlListItem myObject = (UrlListItem)lb.SelectedItem;
             if (myObject != null)
             {
                 System.Diagnostics.Process.Start(myObject.URL);
@@ -294,18 +288,23 @@ namespace WebNotifier
         }
 
         private void button3_Click(object sender, EventArgs e)
-        {
-            if (textBox1.Text == null || textBox1.Text == "")
+        { string box = textBox1.Text;
+            if (box == null || box == "")
             {
-                MessageBox.Show("Setting are no Internet addresse");
+                MessageBox.Show("Setting are no Internet address");
                 return;
             }
-            if (textBox1.Text != null && textBox1.Text != "")
+
+            if (box != null && box != "")
             {
-                bool result = Uri.TryCreate(textBox1.Text, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                if ( !box.StartsWith("http")|| !box.StartsWith("https")){
+                    box = "http://" + box;
+                }
+
+                bool result = Uri.TryCreate(box, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                 if (!result)
                 {
-                    MessageBox.Show("Setting are no Internet addresse");
+                    MessageBox.Show("Setting are no Internet address");
                     return;
                 }
             }
@@ -322,15 +321,18 @@ namespace WebNotifier
             {
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
-            string address = textBox1.Text;
+            string address = box; ;
 
             Thread t1 = new Thread
           (delegate ()
           {
-              Dictionary<string, LinkedList<DiffItem>> dic;
+              Dictionary<string, List<DiffItem>> dic;
+              List<string> list = new List<string>();
+              StringAddon add = new StringAddon();
               lock (webi)
               {
                   dic = webi.DIC;
+                  list = webi.PAGES;
               }
               string alpha = null;
               while (alpha == null)
@@ -342,11 +344,18 @@ namespace WebNotifier
               {
                   beta = webi.CollectInfo(address);
               }
-              LinkedList<DiffItem> now = webi.Analyse(alpha, beta);
+              List<DiffItem> now = webi.Analyse(alpha, beta);
               lock (webi)
               {
                   dic[address] = now;
+                  list.Add(beta);
+                  webi.DIC = dic;
+                  webi.PAGES = list;
                   SetTextList2(address);
+                  //TODO we need a index 
+                  WebNotifier.Default.webpageList.Add(address);
+                  WebNotifier.Default.contentList.Add(beta);
+
                   WebNotifier.Default.Save();
               }
           });
