@@ -20,10 +20,7 @@ namespace WebNotifier
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
-        static void OnProcessExit(object sender, EventArgs e)
-        {
-            
-        }
+       
     }
 
 }

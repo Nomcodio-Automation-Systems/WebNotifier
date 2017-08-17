@@ -62,7 +62,7 @@ namespace WebNotifier
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
         }
-       
+
         /// <summary>
         /// 
         /// </summary>
@@ -97,7 +97,10 @@ namespace WebNotifier
         //    WebNotifier.Default.textBox5 = textBox5.Text;
         //    WebNotifier.Default.Save();
         //}
-
+        ~Form1()
+        {
+            Dispose();
+        }
         private void button1_Click(object sender, EventArgs e)
         {
 
@@ -121,7 +124,7 @@ namespace WebNotifier
 
             lock (webi)
             {
-                if (!webi.Running)
+                if (!webi.Running())
                 {
                     webi.WaitTime = nn;
 
@@ -288,7 +291,8 @@ namespace WebNotifier
         }
 
         private void button3_Click(object sender, EventArgs e)
-        { string box = textBox1.Text;
+        {
+            string box = textBox1.Text;
             if (box == null || box == "")
             {
                 MessageBox.Show("Setting are no Internet address");
@@ -297,7 +301,8 @@ namespace WebNotifier
 
             if (box != null && box != "")
             {
-                if ( !box.StartsWith("http")|| !box.StartsWith("https")){
+                if (!box.StartsWith("http") || !box.StartsWith("https"))
+                {
                     box = "http://" + box;
                 }
 
@@ -314,14 +319,19 @@ namespace WebNotifier
             {
                 WebNotifier.Default.webpageList = new StringCollection();
             }
-            WebNotifier.Default.webpageList.Add(textBox1.Text);
+           
 
 
             if (WebNotifier.Default.diffrentList == null)
             {
                 WebNotifier.Default.diffrentList = new StringCollection();
             }
-            string address = box; ;
+            if (WebNotifier.Default.webpageList.Contains(box)){
+                MessageBox.Show("Duplicate adresse");
+                return;
+            }
+            WebNotifier.Default.webpageList.Add(textBox1.Text);
+            string address = box; 
 
             Thread t1 = new Thread
           (delegate ()
@@ -390,6 +400,13 @@ namespace WebNotifier
             WebNotifier.Default.webpageList.Clear();
             WebNotifier.Default.webpageList.AddRange(List.ToArray());
             WebNotifier.Default.Save();
+
+            webi.DIC[copy] = null;
+            int index = webi.PAGES.IndexOf(copy);
+            if (index != -1)
+            {
+                webi.PAGES.RemoveAt(index);
+            }
         }
 
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)

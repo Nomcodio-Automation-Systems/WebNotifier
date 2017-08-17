@@ -10,7 +10,7 @@ namespace WebNotifier
     {
         void ShowWindow(bool yes);
         void GoToNoWait(string URL);
-        void WaitForComplete(int sec = 10);
+        void WaitForComplete(string url,int sec = 10);
 
     }
 }

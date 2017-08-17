@@ -82,14 +82,11 @@ namespace WebNotifier
             }
             if (type.ToLower() == "webbrowser")
             {
-               // Thread th = new Thread(() => {
+               
 
-                    dis.Navigate(URL);
-                   // Application.Run();
-              //  });
-               // th.SetApartmentState(ApartmentState.STA);
-             //  th.Start();
-                dis.WaitforComplete(10);
+                dis.Navigate(URL);
+              
+                dis.WaitforComplete(URL,10);
             }
             if (type.ToLower() == "websocket")
             {
@@ -102,11 +99,8 @@ namespace WebNotifier
 
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sec">Time wait for complete</param>
-        public void WaitForComplete(int sec = 10)
+      
+        public void WaitForComplete(string url, int sec = 10)
         {
             if (type.ToLower() == "ie")
             {
@@ -122,7 +116,7 @@ namespace WebNotifier
             }
             if (type.ToLower() == "webbrowser")
             {
-                dis.WaitforComplete(sec);
+                dis.WaitforComplete(url,sec);
             }
 
 
@@ -163,6 +157,7 @@ namespace WebNotifier
                 if (type.ToLower() == "webbrowser")
                 {
                     //dis.Dispose();
+                    
                 }
                 if (type.ToLower() == "gecko")
                 {
@@ -175,10 +170,9 @@ namespace WebNotifier
             //
             disposed = true;
         }
-        public WebBody Body
+        public WebBody Body(string url)
         {
-            get
-            {
+            
                 if (type.ToLower() == "ie")
                 {
 
@@ -191,9 +185,9 @@ namespace WebNotifier
                 if (type.ToLower() == "webbrowser")
                 {
                     
-                    if (dis.IsCompleted)
+                    if (dis.IsCompleted(url))
                     {
-                        string re = dis.Body;
+                        string re = dis.Body(url);
                         
                         WebBody body = new WebBody(string.Copy(re));
                         re = null;
@@ -220,12 +214,11 @@ namespace WebNotifier
                 {
                     return null;
                 }
-            }
+            
         }
-        public string Title
+        public string Title(string url)
         {
-            get
-            {
+            
                 if (type.ToLower() == "ie")
                 {
 
@@ -238,7 +231,7 @@ namespace WebNotifier
                 if (type.ToLower() == "webbrowser")
                 {
                     // I hope this is right
-                    string title = dis.Title;
+                    string title = dis.Title(url);
                     return title;
 
                 }
@@ -263,7 +256,7 @@ namespace WebNotifier
                     return null;
                 }
             }
-        }
+        
     }
     class WebBrowserFactory : WebBrowserFacade
     {

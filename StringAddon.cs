@@ -12,7 +12,7 @@ namespace WebNotifier
     {
         private int preDiff = 10;
         private int postDiff = 25;
-        private int how_far = 5;
+        private int how_far = 10;
         delegate DiffItem InternDelegate(bool s);
         delegate int LookHeadDelegate(int a, int b);
         delegate bool CheckDelegate(int pos, int expect);
@@ -47,7 +47,7 @@ namespace WebNotifier
             }
             else
             {
-                list.Insert(pos, obj);
+                list[pos]= obj;
             }
 
         }
@@ -100,7 +100,7 @@ namespace WebNotifier
             }
             else
             {
-                collect.Insert(pos, str);
+                collect[pos] = str;
             }
 
         }
@@ -213,7 +213,7 @@ namespace WebNotifier
                     if (list[w] - save_item > how_far)
                     {
                         save_item = list[w];
-                        a.End = w - 1;
+                        a.End = list[w - 1];
                         break;
                     }
 

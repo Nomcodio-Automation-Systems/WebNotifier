@@ -41,7 +41,18 @@ namespace WebNotifier
             get => view;
 
         }
-        public bool Running => _started;
+        public bool Running()
+        {
+            if(thread_pages == null)
+            {
+                return false;
+            }
+            if (!thread_pages.IsAlive)
+            {
+                return false;
+            }
+            return true;
+        }
         ~WebWorker()
         {
             Dispose();
@@ -184,7 +195,7 @@ namespace WebNotifier
                 }
                 try
                 {
-                    browser.WaitForComplete(waitforcomplete);
+                    browser.WaitForComplete(web_addresse,waitforcomplete);
                 }
                 catch (Exception e3)
                 {
@@ -192,7 +203,7 @@ namespace WebNotifier
                 }
 
 
-                string webpage_content = browser.Body.Text;
+                string webpage_content = browser.Body(web_addresse).Text;
 
 
                 lock (this)
@@ -225,7 +236,7 @@ namespace WebNotifier
                 }
 
 
-                string title = browser.Title;
+                string title = browser.Title(web_addresse);
                 if (title == null)
                 {
                     title = "Unknown";
@@ -285,7 +296,7 @@ namespace WebNotifier
                     }
                     try
                     {
-                        browser.WaitForComplete(waitforcomplete);
+                        browser.WaitForComplete(address,waitforcomplete);
                     }
                     catch (Exception e3)
                     {
@@ -293,7 +304,7 @@ namespace WebNotifier
                     }
 
 
-                    new_webpage_content = browser.Body.Text;
+                    new_webpage_content = browser.Body(address).Text;
 
                 }
             }
@@ -419,7 +430,7 @@ namespace WebNotifier
                         TimeSpan span = new TimeSpan(0, (int)waittime / 5, (int)secounds / 5);
 
 
-                        for (int i = 0; i < view.listBox2.Items.Count; i++)
+                        for (int i = 0; i < view.listBox2.Items.Count && !_shouldStop; i++)
                         {
                             OuterCode(browser, span, i);
 
@@ -452,16 +463,18 @@ namespace WebNotifier
                 }
                 Thread.Sleep(1000);
             }
-            _watchDogStop = true;
-            thread_pages.Abort();
-            Thread.Sleep(2000);
-            _shouldStop = true;
+            
+           // thread_pages.Abort();
+           
         }
         public void StopWatchDog()
         {
+            // we need first stop the watch dog then everything else
             _watchDogStop = true;
             Thread.Sleep(2000);
             _shouldStop = true;
+           
+           
         }
         public void RequestStop()
         {
