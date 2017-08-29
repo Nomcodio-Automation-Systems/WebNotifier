@@ -9,6 +9,7 @@ namespace WebNotifier
     class WebBody
     {
         string text = null;
+
         public WebBody(string text)
         {
             this.text = text;
@@ -18,6 +19,7 @@ namespace WebNotifier
             get => (string)text.Clone();
             set => text = value;
         }
+
     }
 
 
@@ -26,9 +28,11 @@ namespace WebNotifier
         protected static object browser = null;
         protected string type = "";
         protected string body = null;
+        protected string xml = null;
         protected bool disposed = false;
         protected static WebBrowserWrapper dis = null;
         protected WebBrowserFacade() { }
+
         protected WebBrowserFacade(string ty, object o, WebBrowserWrapper gui)
         {
             type = ty;
@@ -70,36 +74,36 @@ namespace WebNotifier
                 }
             }
         }
-        public void GoToNoWait(string URL)
+        public void GoToNoWait(MenuListItem item)
         {
             if (type.ToLower() == "ie")
             {
 
 
-                ((IE)browser).GoToNoWait(URL);
+                ((IE)browser).GoToNoWait(item.Address);
 
 
             }
             if (type.ToLower() == "webbrowser")
             {
-               
 
-                dis.Navigate(URL);
-              
-                dis.WaitforComplete(URL,10);
+
+                dis.Navigate(item.Address);
+
+                dis.WaitforComplete(item.Address, item.MaxWait);
             }
             if (type.ToLower() == "websocket")
             {
-                body = ((WebSocket)browser).Request(URL, 1000);
+                body = ((WebSocket)browser).Request(item.Address,item.MaxWait * 1000,item.MaxTries);
             }
             if (type.ToLower() == "gecko")
             {
                 // Gecko.GeckoLoadFlags  ?? no api , no wiki
-                ((GeckoWebBrowser)browser).Navigate(URL);
+                ((GeckoWebBrowser)browser).Navigate(item.Address);
 
             }
         }
-      
+
         public void WaitForComplete(string url, int sec = 10)
         {
             if (type.ToLower() == "ie")
@@ -116,7 +120,7 @@ namespace WebNotifier
             }
             if (type.ToLower() == "webbrowser")
             {
-                dis.WaitforComplete(url,sec);
+                dis.WaitforComplete(url, sec);
             }
 
 
@@ -139,7 +143,7 @@ namespace WebNotifier
             {
                 return;
             }
-           
+
             if (disposing)
             {
                 if (type.ToLower() == "ie")
@@ -157,7 +161,7 @@ namespace WebNotifier
                 if (type.ToLower() == "webbrowser")
                 {
                     //dis.Dispose();
-                    
+
                 }
                 if (type.ToLower() == "gecko")
                 {
@@ -172,102 +176,150 @@ namespace WebNotifier
         }
         public WebBody Body(string url)
         {
-            
-                if (type.ToLower() == "ie")
-                {
+
+            if (type.ToLower() == "ie")
+            {
 
 
-                    Body b = ((IE)browser).Body;
-                    WebBody body = new WebBody(b.Text);
-                    return body;
+                Body b = ((IE)browser).Body;
+                WebBody body = new WebBody(b.Text);
+                return body;
 
-                }
-                if (type.ToLower() == "webbrowser")
+            }
+            if (type.ToLower() == "webbrowser")
+            {
+
+                if (dis.IsCompleted(url))
                 {
-                    
-                    if (dis.IsCompleted(url))
-                    {
-                        string re = dis.Body(url);
-                        
-                        WebBody body = new WebBody(string.Copy(re));
-                        re = null;
-                        return body;
-                    }
-                }
-                if (type.ToLower() == "websocket")
-                {
-                    XMLWorker xl = new XMLWorker();
-                    string bb = xl.ExtractBody(this.body);
-                    WebBody body = new WebBody(string.Copy(bb));
-                    xl = null;
-                    bb = null;
+                    string re = dis.Body(url);
+
+                    WebBody body = new WebBody(string.Copy(re));
+                    re = null;
                     return body;
                 }
-                if (type.ToLower() == "gecko")
-                {
+            }
+            if (type.ToLower() == "websocket")
+            {
+                XMLWorker xl = new XMLWorker();
+                string bb = xl.ExtractBody(body);
+                WebBody re = new WebBody(string.Copy(bb));
+                xl = null;
+                bb = null;
+                return re;
+            }
+            if (type.ToLower() == "gecko")
+            {
 
-                    GeckoHtmlElement b = ((GeckoWebBrowser)browser).Document.Body;
-                    WebBody body = new WebBody(b.TextContent);
-                    return body;
-                }
-                else
-                {
-                    return null;
-                }
-            
+                GeckoHtmlElement b = ((GeckoWebBrowser)browser).Document.Body;
+                WebBody body = new WebBody(b.TextContent);
+                return body;
+            }
+            else
+            {
+                return null;
+            }
+
         }
         public string Title(string url)
         {
-            
-                if (type.ToLower() == "ie")
-                {
+
+            if (type.ToLower() == "ie")
+            {
 
 
-                    string title = ((IE)browser).Title;
+                string title = ((IE)browser).Title;
 
-                    return title;
+                return title;
 
-                }
-                if (type.ToLower() == "webbrowser")
-                {
-                    // I hope this is right
-                    string title = dis.Title(url);
-                    return title;
-
-                }
-                if (type.ToLower() == "websocket")
-                {
-                    XMLWorker xl = new XMLWorker();
-                    string bb = xl.ExtractTitle(body);
-
-
-
-                    return bb;
-                }
-                if (type.ToLower() == "gecko")
-                {
-
-                    string b = ((GeckoWebBrowser)browser).Document.Title;
-
-                    return b;
-                }
-                else
-                {
-                    return null;
-                }
             }
-        
+            if (type.ToLower() == "webbrowser")
+            {
+                // I hope this is right
+                string title = dis.Title(url);
+                return title;
+
+            }
+            if (type.ToLower() == "websocket")
+            {
+                XMLWorker xl = new XMLWorker();
+                string bb = xl.ExtractTitle(body);
+
+
+
+                return bb;
+            }
+            if (type.ToLower() == "gecko")
+            {
+
+                string b = ((GeckoWebBrowser)browser).Document.Title;
+
+                return b;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public string XML(string url, string element)
+        {
+            if (type.ToLower() == "ie")
+            {
+
+
+                string xml = ((IE)browser).ElementsWithTag(element)[0].ToString();
+
+                return xml;
+
+            }
+            if (type.ToLower() == "webbrowser")
+            {
+                // I hope this is right
+                string title = dis.XML(url);
+                return title;
+
+            }
+            if (type.ToLower() == "websocket")
+            {
+                XMLWorker xl = new XMLWorker();
+                string bb = xl.ExtractTitle(body);
+
+
+
+                return bb;
+            }
+            if (type.ToLower() == "gecko")
+            {
+
+                string b = ((GeckoWebBrowser)browser).Document.Title;
+
+                return b;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     class WebBrowserFactory : WebBrowserFacade
     {
 
-
-        public WebBrowserFactory() { }
+        private static WebBrowserFactory instance;
+        private WebBrowserFactory() { }
         private WebBrowserFactory(string ty, object o, WebBrowserWrapper gui) : base(ty, o, gui)
         {
 
         }
-
+        public static WebBrowserFactory Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new WebBrowserFactory();
+                }
+                return instance;
+            }
+        }
         public WebBrowserFacade BrowserFactory(string factory, WebWorker mutex)
         {
 
@@ -290,7 +342,7 @@ namespace WebNotifier
                 if (factory.ToLower() == "webbrowser")
                 {
                     gui = WebBrowserWrapper.Instance;
-                  //  tmp_browser = gui.webBrowser;
+                    //  tmp_browser = gui.webBrowser;
                 }
                 if (factory.ToLower() == "gecko")
                 {
@@ -320,7 +372,7 @@ namespace WebNotifier
 
                     Application.Run(f);
                 }
-                if (factory.ToLower() == "socket")
+                if (factory.ToLower() == "websocket")
                 {
                     tmp_browser = new WebSocket();
                 }

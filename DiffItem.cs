@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebNotifier
 {
+    [Serializable]
     class DiffItem
     {
         private int start = 0;

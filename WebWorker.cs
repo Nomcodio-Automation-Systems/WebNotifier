@@ -26,13 +26,14 @@ namespace WebNotifier
         private volatile bool _started;
         private double waittime = 10;
         private string last_adresse = "";
-        private bool debug = true;
-        private int waitforcomplete = 10; // sec
-        private string which_browser = "webbrowser";
-
-        public WebWorker(Form1 other)
+        private bool debug = false;
+        // private int waitforcomplete = 10; // sec
+        // private string which_browser = "webbrowser";
+        public List<MenuListItem> MenuList { get; set; }
+        public WebWorker(Form1 other, List<MenuListItem> list)
         {
             view = other;
+            MenuList = list;
 
         }
         public Form1 View
@@ -43,7 +44,7 @@ namespace WebNotifier
         }
         public bool Running()
         {
-            if(thread_pages == null)
+            if (thread_pages == null)
             {
                 return false;
             }
@@ -56,6 +57,7 @@ namespace WebNotifier
         ~WebWorker()
         {
             Dispose();
+            ObjectBinarySerialize.SaveOListasFile("menu.bin", MenuList);
             WebNotifier.Default.Save();
         }
         public Dictionary<string, List<DiffItem>> DIC
@@ -86,13 +88,13 @@ namespace WebNotifier
             }
             return diff.ToArray();
         }
-        private void NotEqual(string address, string new_webpage_content, string title, int index)
+        private void NotEqual(MenuListItem item, string new_webpage_content, string title, int index)
         {
             List<DiffItem> last = null;
             StringAddon add = new StringAddon();
             try
             {
-                last = webpages_diff_buffer[address];
+                last = webpages_diff_buffer[item.Address];
             }
             catch
             {
@@ -103,7 +105,7 @@ namespace WebNotifier
                 try
                 {
                     StringAddon strm = new StringAddon();
-                    webpages_diff_buffer[address] = Analyse(strm.GetSafeFromList(webpages_content_buffer,index), new_webpage_content);
+                    webpages_diff_buffer[item.Address] = Analyse(strm.GetSafeFromList(webpages_content_buffer, index), new_webpage_content);
                     return;
                 }
                 catch
@@ -112,7 +114,7 @@ namespace WebNotifier
                 }
             }
             StringAddon str = new StringAddon();
-            List<DiffItem> now = Analyse(str.GetSafeFromList(webpages_content_buffer,index), new_webpage_content);
+            List<DiffItem> now = Analyse(str.GetSafeFromList(webpages_content_buffer, index), new_webpage_content);
             bool result = add.Compare2DiffItemLists(last, now);
             if (!last[0].NoDiff && now[0].Start == 0 && now[1].Start == 0)
             {
@@ -120,30 +122,42 @@ namespace WebNotifier
                 {
                     if (now.ToArray<DiffItem>()[0].Start == 0 && now.ToArray<DiffItem>()[1].Start == 0)
                     {
-                        webpages_diff_buffer[address] = last;
+                        webpages_diff_buffer[item.Address] = last;
                     }
                     else
                     {
 
-                        webpages_diff_buffer[address] = now;
+                        webpages_diff_buffer[item.Address] = now;
                     }
                     str.InsertSafeList(webpages_content_buffer, new_webpage_content, index);
-                   
+
                     result = false;
                 }
             }
 
             if (result)
             {
+                int cou = add.CountCharDiffer(webpages_content_buffer[index], new_webpage_content);
+                if (cou <= item.IgnoreChars)
+                {
+                    result = false;
+                    add.InsertSafeCollection(WebNotifier.Default.contentList, new_webpage_content, index);
+                    webpages_diff_buffer[item.Address] = now;
+                    str.InsertSafeList(webpages_content_buffer, new_webpage_content, index);
+                }
+            }
+            if (result)
+            {
 
                 lock (this)
                 {
-                    LastAddresse = address;
-                    add.InsertSafeCollection(WebNotifier.Default.webpageList, address, index);
+                    LastAddresse = item.Address;
+                    // add.InsertSafeCollection(WebNotifier.Default.webpageList, address, index);
+                    //MenuList[index] = item;
                     //WebNotifier.Default.webpageList.Insert(index, address);
                     add.InsertSafeCollection(WebNotifier.Default.contentList, new_webpage_content, index);
                     //WebNotifier.Default.contentList.Insert(index, new_webpage_content);
-                    view.SetTextList1(title, address);
+                    view.SetTextList1(title, item.Address);
                     //String alpha = null;
                     //while ( alpha == null )
                     //{
@@ -161,9 +175,9 @@ namespace WebNotifier
 
                         MessageBox.Show(add.ShowDiff(webpages_content_buffer[index], new_webpage_content), "Debug: " + title);
                     }
-                    
-                    webpages_diff_buffer[address] = now;
-                   str.InsertSafeList(webpages_content_buffer,new_webpage_content,index);
+
+                    webpages_diff_buffer[item.Address] = now;
+                    str.InsertSafeList(webpages_content_buffer, new_webpage_content, index);
                 }
                 if (!view.checkBox3.Checked)
                 {
@@ -181,13 +195,14 @@ namespace WebNotifier
                 return;
             }
 
-            string web_addresse = (string)view.listBox2.Items[index];
+            MenuListItem item = (MenuListItem)view.listBox2.Items[index];
 
+            string web_addresse = item.Address;
             if (web_addresse != null && web_addresse != "")
             {
                 try
                 {
-                    browser.GoToNoWait(web_addresse);
+                    browser.GoToNoWait(item);
                 }
                 catch (Exception e3)
                 {
@@ -195,7 +210,7 @@ namespace WebNotifier
                 }
                 try
                 {
-                    browser.WaitForComplete(web_addresse,waitforcomplete);
+                    browser.WaitForComplete(web_addresse, item.MaxWait);
                 }
                 catch (Exception e3)
                 {
@@ -211,7 +226,8 @@ namespace WebNotifier
                     string old_addresse = null;
                     try
                     {
-                        old_addresse = WebNotifier.Default.webpageList[index];
+                        //  old_addresse = WebNotifier.Default.webpageList[index];
+                        old_addresse = MenuList[index].Address;
                     }
                     catch
                     {
@@ -225,7 +241,7 @@ namespace WebNotifier
                             try
                             {
                                 StringAddon str = new StringAddon();
-                               str.InsertSafeList(webpages_content_buffer,WebNotifier.Default.contentList[index], index);
+                                str.InsertSafeList(webpages_content_buffer, item.Address, index);
                             }
                             catch
                             {
@@ -247,7 +263,7 @@ namespace WebNotifier
                     if (!webpages_content_buffer[index].Equals(webpage_content))
                     {
 
-                        NotEqual(web_addresse, webpage_content, title, index);
+                        NotEqual(item, webpage_content, title, index);
 
                     }
 
@@ -257,11 +273,12 @@ namespace WebNotifier
                     if (webpage_content != null && webpage_content != "")
                     {
                         StringAddon str = new StringAddon();
-                        str.InsertSafeList(webpages_content_buffer,webpage_content,index);
+                        str.InsertSafeList(webpages_content_buffer, webpage_content, index);
                         lock (this)
                         {
 
-                            WebNotifier.Default.webpageList.Insert(index, web_addresse);
+                            // WebNotifier.Default.webpageList.Insert(index, web_addresse);
+
                             WebNotifier.Default.contentList.Insert(index, webpage_content);
                         }
                     }
@@ -269,13 +286,14 @@ namespace WebNotifier
             }
             Thread.Sleep(span);
         }
-        public string CollectInfo(string address)
+        public string CollectInfo(MenuListItem item, int max_tries = 5, int tries = 0)
         {
+            string address = item.ToString();
             string new_webpage_content = null;
             try
             {
                 // IE browser = new IE();
-                using (WebBrowserFacade browser = (new WebBrowserFactory()).BrowserFactory(which_browser, this))
+                using (WebBrowserFacade browser = WebBrowserFactory.Instance.BrowserFactory(item.WhichBrowser(), this))
                 {
                     if (view.checkBox1.Checked)
                     {
@@ -288,7 +306,7 @@ namespace WebNotifier
 
                     try
                     {
-                        browser.GoToNoWait(address);
+                        browser.GoToNoWait(item);
                     }
                     catch (Exception e3)
                     {
@@ -296,7 +314,7 @@ namespace WebNotifier
                     }
                     try
                     {
-                        browser.WaitForComplete(address,waitforcomplete);
+                        browser.WaitForComplete(address, item.MaxWait);
                     }
                     catch (Exception e3)
                     {
@@ -310,7 +328,19 @@ namespace WebNotifier
             }
             catch
             {
-                CollectInfo(address);
+                if (tries > max_tries)
+                {
+                    return null;
+                }
+                return CollectInfo(item, max_tries, tries + 1);
+            }
+            if (new_webpage_content == null)
+            {
+                if (tries > max_tries)
+                {
+                    return null;
+                }
+                return CollectInfo(item, max_tries, tries + 1);
             }
             return new_webpage_content;
         }
@@ -330,12 +360,12 @@ namespace WebNotifier
 
             for (int i = 0; i < view.listBox2.Items.Count; i++)
             {
-                string address = (string)view.listBox2.Items[i];
+                MenuListItem item = (MenuListItem)view.listBox2.Items[i];
                 List<DiffItem> last_diff = null;
                 try
                 {
-                   
-                    last_diff = str.GetSafeObjectFromDic(webpages_diff_buffer, address);
+
+                    last_diff = str.GetSafeObjectFromDic(webpages_diff_buffer, item.Address);
                 }
                 catch
                 {
@@ -348,19 +378,18 @@ namespace WebNotifier
                     string alpha_content = null;
                     string beta_content = null;
 
-                    while (alpha_content == null)
-                    {
-                        alpha_content = CollectInfo(address);
-                    }
+
+                    alpha_content = CollectInfo(item, item.MaxTries);
+
 
                     int cut_off = 0;
                     do
                     {
+
                         cut_off++;
-                        while (beta_content == null)
-                        {
-                            beta_content = CollectInfo(address);
-                        }
+
+                        beta_content = CollectInfo(item, item.MaxTries);
+
 
                     } while (beta_content.Equals(alpha_content) && cut_off < max_trys);
 
@@ -376,7 +405,7 @@ namespace WebNotifier
     "DebugMessage");
                         }
 
-                        webpages_diff_buffer[address] = now;
+                        webpages_diff_buffer[item.Address] = now;
 
                     }
                     else
@@ -389,11 +418,11 @@ namespace WebNotifier
                         {
                             dummy_item
                         };
-                        
-                        webpages_diff_buffer[address] = now;
+
+                        webpages_diff_buffer[item.Address] = now;
                     }
-                   
-                    str.InsertSafeList(webpages_content_buffer,string.Copy(beta_content), i);
+
+                    str.InsertSafeList(webpages_content_buffer, string.Copy(beta_content), i);
                     alpha_content = null;
                     beta_content = null;
                 }
@@ -409,29 +438,33 @@ namespace WebNotifier
             MeasureInterference();
             try
             {
-                // IE browser = new IE();
-                using (WebBrowserFacade browser = (new WebBrowserFactory()).BrowserFactory(which_browser, this))
+
+
+                while (!_shouldStop)
                 {
-
-                    while (!_shouldStop)
+                    
+                    for (int i = 0; i < view.listBox2.Items.Count && !_shouldStop; i++)
                     {
-                        if (view.checkBox1.Checked)
+                        // IE browser = new IE();
+                        using (WebBrowserFacade browser = WebBrowserFactory.Instance.BrowserFactory(((MenuListItem)(view.listBox2.Items[i])).WhichBrowser(), this))
                         {
-                            browser.ShowWindow(false);
-                        }
-                        else
-                        {
-                            browser.ShowWindow(true);
-                        }
+                            if (view.checkBox1.Checked)
+                            {
+                                browser.ShowWindow(false);
+                            }
+                            else
+                            {
+                                browser.ShowWindow(true);
+                            }
 
-                        int k = (int)waittime;
-                        double rest = waittime % (double)k;
-                        double secounds = 60.0d * rest;
-                        TimeSpan span = new TimeSpan(0, (int)waittime / 5, (int)secounds / 5);
+                            double seconds = (waittime * 60 / view.listBox2.Items.Count) % 60;
+
+                            double minutes =  Math.Floor(((waittime * 60.0) - seconds)/ view.listBox2.Items.Count / 60.0);
+                          
+                            TimeSpan span = new TimeSpan(0, (int)minutes, (int)seconds);
 
 
-                        for (int i = 0; i < view.listBox2.Items.Count && !_shouldStop; i++)
-                        {
+
                             OuterCode(browser, span, i);
 
                         }
@@ -463,9 +496,9 @@ namespace WebNotifier
                 }
                 Thread.Sleep(1000);
             }
-            
-           // thread_pages.Abort();
-           
+
+            // thread_pages.Abort();
+
         }
         public void StopWatchDog()
         {
@@ -473,8 +506,8 @@ namespace WebNotifier
             _watchDogStop = true;
             Thread.Sleep(2000);
             _shouldStop = true;
-           
-           
+
+
         }
         public void RequestStop()
         {

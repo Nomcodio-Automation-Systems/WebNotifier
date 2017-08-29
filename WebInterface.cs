@@ -9,7 +9,7 @@ namespace WebNotifier
     interface WebInterface
     {
         void ShowWindow(bool yes);
-        void GoToNoWait(string URL);
+        void GoToNoWait(MenuListItem item);
         void WaitForComplete(string url,int sec = 10);
 
     }

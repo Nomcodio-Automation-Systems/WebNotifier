@@ -13,6 +13,7 @@ namespace WebNotifier
         private static Dictionary<string, string> body = new Dictionary<string, string>();
         private static Dictionary<string, string> title = new Dictionary<string, string>();
         private static Dictionary<string, string> text = new Dictionary<string, string>();
+        private static Dictionary<string, string> xml = new Dictionary<string, string>();
         private static Dictionary<string, bool> iscompleted = new Dictionary<string, bool>();
         private List<WebBrowser> br = new List<WebBrowser>();
         private List<Thread> th = new List<Thread>();
@@ -88,6 +89,7 @@ namespace WebNotifier
                     text[br.Url.ToString()] = string.Copy(br.DocumentText);
                     body[br.Url.ToString()] = string.Copy(br.Document.Body.InnerText);
                     title[br.Url.ToString()] = string.Copy(br.Document.Title);
+                    xml[br.Url.ToString()] = string.Copy(br.DocumentText);
                     if (title[br.Url.ToString()] == null)
                     {
                         title[br.Url.ToString()] = "default";
@@ -123,6 +125,13 @@ namespace WebNotifier
             lock (this)
             {
                 return string.Copy(text[url]);
+            }
+        }
+        public string XML(string url)
+        {
+            lock (this)
+            {
+                return string.Copy(xml[url]);
             }
         }
 

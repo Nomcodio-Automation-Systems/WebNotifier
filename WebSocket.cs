@@ -49,7 +49,7 @@ namespace WebNotifier
             webResponse.Close();
             return answer;
         }
-        public string Request(string Url, int timeout)
+        public string Request(string Url, int timeout, int maxtries = 5, int tries = 0)
         {
             WebRequest webRequest;
             WebResponse webResponse;
@@ -69,7 +69,14 @@ namespace WebNotifier
             }
             catch (Exception e)
             {
-                return null;
+                if( tries < maxtries)
+                {
+                    return Request(Url, timeout, maxtries, tries + 1);
+                }
+                else
+                {
+                    return null;
+                }
             }
             Task<string> taskA = Task.Run(() => ReadFrom(webResponse.GetResponseStream()));
             string answer = taskA.Result;

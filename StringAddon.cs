@@ -17,7 +17,7 @@ namespace WebNotifier
         delegate int LookHeadDelegate(int a, int b);
         delegate bool CheckDelegate(int pos, int expect);
 
-        public T GetSafeObjectFromDic<T>(Dictionary<string,T> dic, string key)
+        public T GetSafeObjectFromDic<T>(Dictionary<string, T> dic, string key)
         {
             if (dic.ContainsKey(key))
             {
@@ -26,7 +26,7 @@ namespace WebNotifier
 
             return default(T);
         }
-        public void InsertSafeList<T>(List<T> list, T obj,  int pos)
+        public void InsertSafeList<T>(List<T> list, T obj, int pos)
         {
             int numbers_count = list.Count;
 
@@ -47,7 +47,7 @@ namespace WebNotifier
             }
             else
             {
-                list[pos]= obj;
+                list[pos] = obj;
             }
 
         }
@@ -55,21 +55,21 @@ namespace WebNotifier
         {
             int numbers_count = list.Count;
 
-            if((index + 1) > numbers_count)
+            if ((index + 1) > numbers_count)
             {
                 return default(T);
             }
 
-            if(list[index] == null )
+            if (list[index] == null)
             {
                 return default(T);
             }
-            if(list[index] is string)
+            if (list[index] is string)
             {
-                if(list[index].ToString() == "")
+                if (list[index].ToString() == "")
                 {
                     return default(T);
-                } 
+                }
             }
             return list[index];
         }
@@ -104,6 +104,55 @@ namespace WebNotifier
             }
 
         }
+        public int CountCharDiffer(string alpha, string beta)
+        {
+            string diff_string = ShowDiff(alpha, beta);
+
+            int len = diff_string.Length;
+            char[] src = diff_string.ToCharArray();
+            int dstIdx = 0;
+            for (int i = 0; i < len; i++)
+            {
+                char ch = src[i];
+                switch (ch)
+                {
+                    case '\u0020':
+                    case '\u00A0':
+                    case '\u1680':
+                    case '\u2000':
+                    case '\u2001':
+                    case '\u2002':
+                    case '\u2003':
+                    case '\u2004':
+                    case '\u2005':
+                    case '\u2006':
+                    case '\u2007':
+                    case '\u2008':
+                    case '\u2009':
+                    case '\u200A':
+                    case '\u202F':
+                    case '\u205F':
+                    case '\u3000':
+                    case '\u2028':
+                    case '\u2029':
+                    case '\u0009':
+                    case '\u000A':
+                    case '\u000B':
+                    case '\u000C':
+                    case '\u000D':
+                    case '\u0085':
+                        continue;
+                    default:
+                        src[dstIdx++] = ch;
+                        break;
+                }
+            }
+            string result = new string(src, 0, dstIdx);
+
+            return result.Count();
+        }
+
+
         public int[] DifferI(string source1, string source2)
         {
 
@@ -246,7 +295,7 @@ namespace WebNotifier
                 };
                 dummy.Add(d1);
                 return dummy;
-                
+
             }
             // no checks here
             int begin = list[0];

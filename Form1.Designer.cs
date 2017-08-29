@@ -50,6 +50,28 @@
             this.button5 = new System.Windows.Forms.Button();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.browserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.webBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.websocketToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.waitTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuWaitTime3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuWaitTime5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuWaitTime10 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuWaitTime15 = new System.Windows.Forms.ToolStripMenuItem();
+            this.maxTriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuMaxTries3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuMaxTries5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuMaxTries10 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuMaxTries20 = new System.Windows.Forms.ToolStripMenuItem();
+            this.ignoreCharsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars0 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars50 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars100 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars150 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars200 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars250 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuIgnoreChars500 = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox1
@@ -128,6 +150,7 @@
             this.checkBox1.TabIndex = 10;
             this.checkBox1.Text = "Hide IE";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.Visible = false;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // checkBox2
@@ -191,6 +214,7 @@
             this.listBox2.Size = new System.Drawing.Size(442, 108);
             this.listBox2.TabIndex = 16;
             this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
+            this.listBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.listBox2_MouseDown);
             // 
             // button5
             // 
@@ -215,8 +239,192 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.browserToolStripMenuItem,
+            this.waitTimeToolStripMenuItem,
+            this.maxTriesToolStripMenuItem,
+            this.ignoreCharsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(139, 92);
+            // 
+            // browserToolStripMenuItem
+            // 
+            this.browserToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.webBrowserToolStripMenuItem,
+            this.websocketToolStripMenuItem});
+            this.browserToolStripMenuItem.Name = "browserToolStripMenuItem";
+            this.browserToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.browserToolStripMenuItem.Text = "Browser";
+            // 
+            // webBrowserToolStripMenuItem
+            // 
+            this.webBrowserToolStripMenuItem.Name = "webBrowserToolStripMenuItem";
+            this.webBrowserToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.webBrowserToolStripMenuItem.Tag = "WebBrowser";
+            this.webBrowserToolStripMenuItem.Text = "WebBrowser";
+            this.webBrowserToolStripMenuItem.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // websocketToolStripMenuItem
+            // 
+            this.websocketToolStripMenuItem.Name = "websocketToolStripMenuItem";
+            this.websocketToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.websocketToolStripMenuItem.Tag = "WebSocket";
+            this.websocketToolStripMenuItem.Text = "WebSocket";
+            this.websocketToolStripMenuItem.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // waitTimeToolStripMenuItem
+            // 
+            this.waitTimeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuWaitTime3,
+            this.toolStripMenuWaitTime5,
+            this.toolStripMenuWaitTime10,
+            this.toolStripMenuWaitTime15});
+            this.waitTimeToolStripMenuItem.Name = "waitTimeToolStripMenuItem";
+            this.waitTimeToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.waitTimeToolStripMenuItem.Text = "WaitTime";
+            // 
+            // toolStripMenuWaitTime3
+            // 
+            this.toolStripMenuWaitTime3.Name = "toolStripMenuWaitTime3";
+            this.toolStripMenuWaitTime3.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuWaitTime3.Tag = "WaitTime3";
+            this.toolStripMenuWaitTime3.Text = "3";
+            this.toolStripMenuWaitTime3.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuWaitTime5
+            // 
+            this.toolStripMenuWaitTime5.Name = "toolStripMenuWaitTime5";
+            this.toolStripMenuWaitTime5.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuWaitTime5.Tag = "WaitTime5";
+            this.toolStripMenuWaitTime5.Text = "5";
+            this.toolStripMenuWaitTime5.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuWaitTime10
+            // 
+            this.toolStripMenuWaitTime10.Name = "toolStripMenuWaitTime10";
+            this.toolStripMenuWaitTime10.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuWaitTime10.Tag = "WaitTime10";
+            this.toolStripMenuWaitTime10.Text = "10";
+            this.toolStripMenuWaitTime10.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuWaitTime15
+            // 
+            this.toolStripMenuWaitTime15.Name = "toolStripMenuWaitTime15";
+            this.toolStripMenuWaitTime15.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuWaitTime15.Tag = "WaitTime15";
+            this.toolStripMenuWaitTime15.Text = "15";
+            this.toolStripMenuWaitTime15.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // maxTriesToolStripMenuItem
+            // 
+            this.maxTriesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuMaxTries3,
+            this.toolStripMenuMaxTries5,
+            this.toolStripMenuMaxTries10,
+            this.toolStripMenuMaxTries20});
+            this.maxTriesToolStripMenuItem.Name = "maxTriesToolStripMenuItem";
+            this.maxTriesToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.maxTriesToolStripMenuItem.Text = "MaxTries";
+            // 
+            // toolStripMenuMaxTries3
+            // 
+            this.toolStripMenuMaxTries3.Name = "toolStripMenuMaxTries3";
+            this.toolStripMenuMaxTries3.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuMaxTries3.Tag = "MaxTries3";
+            this.toolStripMenuMaxTries3.Text = "3";
+            this.toolStripMenuMaxTries3.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuMaxTries5
+            // 
+            this.toolStripMenuMaxTries5.Name = "toolStripMenuMaxTries5";
+            this.toolStripMenuMaxTries5.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuMaxTries5.Tag = "MaxTries5";
+            this.toolStripMenuMaxTries5.Text = "5";
+            this.toolStripMenuMaxTries5.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuMaxTries10
+            // 
+            this.toolStripMenuMaxTries10.Name = "toolStripMenuMaxTries10";
+            this.toolStripMenuMaxTries10.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuMaxTries10.Tag = "MaxTries10";
+            this.toolStripMenuMaxTries10.Text = "10";
+            this.toolStripMenuMaxTries10.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuMaxTries20
+            // 
+            this.toolStripMenuMaxTries20.Name = "toolStripMenuMaxTries20";
+            this.toolStripMenuMaxTries20.Size = new System.Drawing.Size(86, 22);
+            this.toolStripMenuMaxTries20.Tag = "MaxTries20";
+            this.toolStripMenuMaxTries20.Text = "20";
+            this.toolStripMenuMaxTries20.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // ignoreCharsToolStripMenuItem
+            // 
+            this.ignoreCharsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuIgnoreChars0,
+            this.toolStripMenuIgnoreChars50,
+            this.toolStripMenuIgnoreChars100,
+            this.toolStripMenuIgnoreChars150,
+            this.toolStripMenuIgnoreChars200,
+            this.toolStripMenuIgnoreChars250,
+            this.toolStripMenuIgnoreChars500});
+            this.ignoreCharsToolStripMenuItem.Name = "ignoreCharsToolStripMenuItem";
+            this.ignoreCharsToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.ignoreCharsToolStripMenuItem.Text = "IgnoreChars";
+            // 
+            // toolStripMenuIgnoreChars0
+            // 
+            this.toolStripMenuIgnoreChars0.Name = "toolStripMenuIgnoreChars0";
+            this.toolStripMenuIgnoreChars0.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars0.Tag = "IgnoreChars0";
+            this.toolStripMenuIgnoreChars0.Text = "0";
+            // 
+            // toolStripMenuIgnoreChars50
+            // 
+            this.toolStripMenuIgnoreChars50.Name = "toolStripMenuIgnoreChars50";
+            this.toolStripMenuIgnoreChars50.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars50.Tag = "IgnoreChars50";
+            this.toolStripMenuIgnoreChars50.Text = "50";
+            this.toolStripMenuIgnoreChars50.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuIgnoreChars100
+            // 
+            this.toolStripMenuIgnoreChars100.Name = "toolStripMenuIgnoreChars100";
+            this.toolStripMenuIgnoreChars100.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars100.Tag = "IgnoreChars100";
+            this.toolStripMenuIgnoreChars100.Text = "100";
+            this.toolStripMenuIgnoreChars100.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuIgnoreChars150
+            // 
+            this.toolStripMenuIgnoreChars150.Name = "toolStripMenuIgnoreChars150";
+            this.toolStripMenuIgnoreChars150.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars150.Tag = "IgnoreChars150";
+            this.toolStripMenuIgnoreChars150.Text = "150";
+            this.toolStripMenuIgnoreChars150.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuIgnoreChars200
+            // 
+            this.toolStripMenuIgnoreChars200.Name = "toolStripMenuIgnoreChars200";
+            this.toolStripMenuIgnoreChars200.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars200.Tag = "IgnoreChars200";
+            this.toolStripMenuIgnoreChars200.Text = "200";
+            this.toolStripMenuIgnoreChars200.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
+            // 
+            // toolStripMenuIgnoreChars250
+            // 
+            this.toolStripMenuIgnoreChars250.Name = "toolStripMenuIgnoreChars250";
+            this.toolStripMenuIgnoreChars250.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars250.Tag = "IgnoreChars250";
+            this.toolStripMenuIgnoreChars250.Text = "250";
+            // 
+            // toolStripMenuIgnoreChars500
+            // 
+            this.toolStripMenuIgnoreChars500.Name = "toolStripMenuIgnoreChars500";
+            this.toolStripMenuIgnoreChars500.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuIgnoreChars500.Tag = "IgnoreChars500";
+            this.toolStripMenuIgnoreChars500.Text = "500";
+            this.toolStripMenuIgnoreChars500.Click += new System.EventHandler(this.webBrowserToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -243,6 +451,7 @@
             this.Text = "WebNotifier          V.0.0.1.5823";
             this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
             this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -266,6 +475,27 @@
         private System.Windows.Forms.Button button5;
         public System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem browserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem webBrowserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem websocketToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem waitTimeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuWaitTime3;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuWaitTime5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuWaitTime10;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuWaitTime15;
+        private System.Windows.Forms.ToolStripMenuItem maxTriesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuMaxTries3;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuMaxTries5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuMaxTries10;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuMaxTries20;
+        private System.Windows.Forms.ToolStripMenuItem ignoreCharsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars50;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars100;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars150;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars200;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars500;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars0;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuIgnoreChars250;
     }
 }
 
